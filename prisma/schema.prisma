@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  OCCUPANT
+  SUPPLIER
+}
+
+model Organization {
+  id        String   @id @default(cuid())
+  User      User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  password       String
+  firstname      String
+  lastname       String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  organizationId String
+  role           Role
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Building {
+  id        String   @id @default(cuid())
+  name      String
+  floors    Floor[]
+  device    Device[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Floor {
+  id         String   @id @default(cuid())
+  name       String
+  building   Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  buildingId String
+  rooms      Room[]
+  zones      Zone[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Zone {
+  id        String   @id @default(cuid())
+  name      String
+  floor     Floor    @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  floorId   String
+  rooms     Room[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Room {
+  id        String   @id @default(cuid())
+  name      String
+  floor     Floor    @relation(fields: [floorId], references: [id], onDelete: Cascade)
+  floorId   String
+  zone      Zone?    @relation(fields: [zoneId], references: [id])
+  zoneId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Device {
+  id          String       @id @default(cuid())
+  wattsenseId String       @unique
+  building    Building     @relation(fields: [buildingId], references: [id])
+  buildingId  String
+  equipements Equipement[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Equipement {
+  id          String     @id @default(cuid())
+  wattsenseId String     @unique
+  device      Device     @relation(fields: [deviceId], references: [id])
+  deviceId    String
+  property    Property[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Property {
+  id           String     @id @default(cuid())
+  wattsenseId  String     @unique
+  equipement   Equipement @relation(fields: [equipementId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  equipementId String
+}
