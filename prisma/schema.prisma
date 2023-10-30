@@ -98,7 +98,7 @@ model Property {
   id           String     @id @default(cuid())
   wattsenseId  String     @unique
   equipement   Equipement @relation(fields: [equipementId], references: [id])
+  equipementId String
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-  equipementId String
 }
